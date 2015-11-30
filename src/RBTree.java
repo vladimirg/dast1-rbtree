@@ -1,3 +1,5 @@
+import java.lang.reflect.Array;
+
 /**
  *
  * RBTree
@@ -142,4 +144,54 @@ public class RBTree {
 	 * this file, not in another file.
 	 */
 
+	/**
+	 * Helper classes
+	 */
+	
+	private static class List<Type>
+	{
+		private static final int INITIAL_LENGTH = 16;
+		private static final int INCREASE_FACTOR = 2;
+		
+		private Type[] storageArray;
+		private int numberOfItemsStored;
+		
+		public List()
+		{
+			@SuppressWarnings("unchecked")
+			Type[] storageArray = (Type[])Array.newInstance(this.getClass(), List.INITIAL_LENGTH);
+			this.storageArray = storageArray;
+			this.numberOfItemsStored = 0;
+		}
+		
+		public void addItem(Type item)
+		{
+			if (this.numberOfItemsStored == this.storageArray.length)
+			{
+				@SuppressWarnings("unchecked")
+				Type[] increasedArray = (Type[])Array.newInstance(this.getClass(), this.storageArray.length * List.INCREASE_FACTOR);
+				
+				for (int ix = 0; ix < this.numberOfItemsStored; ix++)
+				{
+					increasedArray[ix] = this.storageArray[ix];
+				}
+			}
+			
+			this.storageArray[this.numberOfItemsStored] = item;
+			this.numberOfItemsStored++;
+		}
+		
+		public Type[] toArray()
+		{
+			@SuppressWarnings("unchecked")
+			Type[] result = (Type[])Array.newInstance(this.getClass(), this.numberOfItemsStored);
+			
+			for (int ix = 0; ix < this.numberOfItemsStored; ix++)
+			{
+				result[ix] = this.storageArray[ix];
+			}
+			
+			return result;
+		}
+	}
 }
