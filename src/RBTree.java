@@ -15,6 +15,7 @@ public class RBTree {
 	 * public class RBNode
 	 */
 	public static class RBNode {
+		private String value;
 		public boolean isRed() {
 			return true;
 		}
@@ -29,6 +30,10 @@ public class RBTree {
 
 		public int getKey() {
 			return 42;
+		}
+		
+		public String getValue() {
+			return this.value;
 		}
 	}
 
@@ -113,8 +118,18 @@ public class RBTree {
 	 * array if the tree is empty.
 	 */
 	public int[] keysToArray() {
-		int[] arr = new int[42]; // to be replaced by student code
-		return arr; // to be replaced by student code
+		List<Integer> keys = new List<Integer>();
+		
+		this.collectKeysInorder(this.getRoot(), keys);
+		
+		Integer[] keysArray = keys.toArray();
+		int[] result = new int[keysArray.length];
+		for (int ix = 0; ix < result.length; ix++)
+		{
+			result[ix] = keysArray[ix];
+		}
+		
+		return result;
 	}
 
 	/**
@@ -124,8 +139,11 @@ public class RBTree {
 	 * respective keys, or an empty array if the tree is empty.
 	 */
 	public String[] valuesToArray() {
-		String[] arr = new String[42]; // to be replaced by student code
-		return arr; // to be replaced by student code
+		List<String> values = new List<String>();
+		
+		this.collectValuesInorder(this.getRoot(), values);
+		
+		return values.toArray();
 	}
 
 	/**
@@ -143,7 +161,35 @@ public class RBTree {
 	 * If you wish to implement classes, other than RBTree and RBNode, do it in
 	 * this file, not in another file.
 	 */
-
+	
+	/**
+	 * Private methods
+	 */
+	
+	private void collectKeysInorder(RBNode node, List<Integer> keysList)
+	{
+		if (node == null)
+		{
+			return;
+		}
+		
+		this.collectKeysInorder(node.getLeft(), keysList);
+		keysList.addItem(node.getKey());
+		this.collectKeysInorder(node.getRight(), keysList);
+	}
+	
+	private void collectValuesInorder(RBNode node, List<String> keysList)
+	{
+		if (node == null)
+		{
+			return;
+		}
+		
+		this.collectValuesInorder(node.getLeft(), keysList);
+		keysList.addItem(node.getValue());
+		this.collectValuesInorder(node.getRight(), keysList);
+	}
+	
 	/**
 	 * Helper classes
 	 */
