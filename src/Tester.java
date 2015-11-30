@@ -1,10 +1,44 @@
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.*;
-
 import org.junit.Test;
 
 public class Tester {
 	@Test
 	public static void main(String[] args)
+	{
+		int[] insertions = getKeysFromFile("test data/test_data_insert_1.txt");
+		int[] deletions = getKeysFromFile("test data/test_data_delete_1.txt");
+		List<Integer> keysInTree = new ArrayList<Integer>();
+		RBTree tree = new RBTree();
+		
+		verifyEmptyTree(tree);
+		
+		for (int ix = 0; ix < insertions.length; ix++)
+		{
+			int keyToInsert = insertions[ix];
+			String valueToInsert = Integer.toString(keyToInsert);
+			tree.insert(keyToInsert, valueToInsert);
+			keysInTree.add(keyToInsert);
+			
+			verifyTreeMatchesArray(tree, listToArray(keysInTree));
+			verifyRBTreeConstrains(tree);
+		}
+		
+		for (int ix = 0; ix < deletions.length; ix++)
+		{
+			int keyToDelete = deletions[ix];
+			tree.delete(keyToDelete);
+			keysInTree.remove(keyToDelete);
+			
+			verifyTreeMatchesArray(tree, listToArray(keysInTree));
+			verifyRBTreeConstrains(tree);
+		}
+		
+		verifyEmptyTree(tree);
+	}
+	
+	private static void testRandomDataset()
 	{
 		RBTree tree = new RBTree();
 		verifyEmptyTree(tree);
@@ -57,6 +91,43 @@ public class Tester {
 		}
 	}
 	
+	private static void verifyRBTreeConstrains(RBTree tree)
+	{
+		RBTree.RBNode treeRoot = tree.getRoot();
+		assert treeRoot == null || (!treeRoot.isRed() && treeRoot.isBlack());
+		
+		verifyRBTreeConstrains(treeRoot, Integer.MIN_VALUE, Integer.MAX_VALUE);
+	}
+	
+	private static int verifyRBTreeConstrains(RBTree.RBNode node, int minKey, int maxKey)
+	{
+		if (node == null)
+		{
+			return 1;
+		}
+		
+		// Verify key properties:
+		assert node.getKey() > minKey && node.getKey() < maxKey;
+		
+		// Verify correct coloring:
+		assert (node.isRed() && !node.isBlack()) || (!node.isRed() && node.isBlack());
+		RBTree.RBNode left = node.getLeft();
+		RBTree.RBNode right = node.getRight();
+		if (node.isRed())
+		{
+			assert left == null || left.isBlack();
+			assert right == null || right.isBlack();
+		}
+		
+		// Verify black height:
+		int leftBlackHeight = verifyRBTreeConstrains(left, minKey, node.getKey());
+		int rightBlackHeight = verifyRBTreeConstrains(right, node.getKey(), maxKey);
+		
+		assert leftBlackHeight == rightBlackHeight;
+		
+		return leftBlackHeight + (node.isBlack() ? 1 : 0);
+	}
+	
 	private static void insertArrayIntoTree(RBTree tree, int[] array)
 	{
 		for (int i : array)
@@ -101,5 +172,27 @@ public class Tester {
 		}
 		
 		return result;
+	}
+	
+	private static int[] getKeysFromFile(String filename)
+	{
+		List<Integer> result = new ArrayList<Integer>();
+		try
+		{
+			Scanner scanner = new Scanner(new File(filename));
+			
+			while (scanner.hasNextLine())
+			{
+				result.add( Integer.parseInt(scanner.nextLine()) );
+			}
+			
+			scanner.close();
+		}
+		catch (FileNotFoundException e)
+		{
+			assert false;
+		}
+		
+		return listToArray(result);
 	}
 }
