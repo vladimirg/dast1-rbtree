@@ -15,25 +15,69 @@ public class RBTree {
 	 * public class RBNode
 	 */
 	public static class RBNode {
+		private int key;
 		private String value;
+		private boolean isRed; // If false, it's black.
+		private RBNode leftChild;
+		private RBNode rightChild;
+		
+		public RBNode() {
+			this.isRed = true;
+		}
+		
+		public RBNode(int key, String value) {
+			this();
+			
+			this.key = key;
+			this.value = value;
+		}
+		
 		public boolean isRed() {
-			return true;
+			return this.isRed;
+		}
+		
+		public boolean isBlack() {
+			return !this.isRed;
+		}
+		
+		public void setToRed() {
+			this.isRed = true;
+		}
+		
+		public void setToBlack() {
+			this.isRed = false;
 		}
 
 		public RBNode getLeft() {
-			return null;
+			return this.leftChild;
+		}
+		
+		public void setLeft(RBNode leftChild) {
+			this.leftChild = leftChild;
 		}
 
 		public RBNode getRight() {
-			return null;
+			return this.rightChild;
+		}
+		
+		public void setRight(RBNode rightChild) {
+			this.rightChild = rightChild;
 		}
 
 		public int getKey() {
-			return 42;
+			return this.key;
+		}
+		
+		public void setKey(int key) {
+			this.key = key;
 		}
 		
 		public String getValue() {
 			return this.value;
+		}
+		
+		public void setValue(String value) {
+			this.value = value;
 		}
 	}
 
