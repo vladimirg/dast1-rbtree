@@ -22,6 +22,7 @@ public class RBTree {
 		private int key;
 		private String value;
 		private boolean isRed; // If false, it's black.
+		private RBNode parent;
 		private RBNode leftChild;
 		private RBNode rightChild;
 		
@@ -58,6 +59,7 @@ public class RBTree {
 		
 		public void setLeft(RBNode leftChild) {
 			this.leftChild = leftChild;
+			leftChild.setParent(this);
 		}
 
 		public RBNode getRight() {
@@ -66,6 +68,7 @@ public class RBTree {
 		
 		public void setRight(RBNode rightChild) {
 			this.rightChild = rightChild;
+			rightChild.setParent(this);
 		}
 
 		public int getKey() {
@@ -82,6 +85,14 @@ public class RBTree {
 		
 		public void setValue(String value) {
 			this.value = value;
+		}
+		
+		public RBNode getParent() {
+			return this.parent;
+		}
+		
+		public void setParent(RBNode node) {
+			this.parent = node;
 		}
 	}
 
@@ -235,7 +246,54 @@ public class RBTree {
 			return searchNode(key, node.rightChild);
 		}
 		return null;
-
+	}
+	
+	/**
+	 * Rotate a given node and its right child to the left. 
+	 */
+	private void rotateLeft(RBNode node)
+	{
+		
+	}
+	
+	/**
+	 * Rotate a given node and its left child to the right. 
+	 */
+	private void rotateRight(RBNode node)
+	{
+		
+	}
+	
+	private RBNode findSuccessor(RBNode node)
+	{
+		// First, find the first parent such that our node argument will be in its left subtree.
+		RBNode parent = node.getParent();
+		while (parent != null && parent.getKey() < node.getKey())
+		{
+			parent = parent.getParent();
+		}
+		
+		// If we ended up with a null parent, it means we have no successor.
+		if (parent == null)
+		{
+			return null;
+		}
+		
+		// If the parent has no right subtree, then the parent is the successor.
+		if (parent.getRight() == null)
+		{
+			return parent;
+		}
+		
+		// If the parent has a right subtree, the node's successor will be the
+		// minimum node of that subtree.
+		RBNode min = parent.getRight();
+		while (min.getLeft() != null)
+		{
+			min = min.getLeft();
+		}
+		
+		return min;
 	}
 	
 	private void collectKeysInorder(RBNode node, List<Integer> keysList) {
