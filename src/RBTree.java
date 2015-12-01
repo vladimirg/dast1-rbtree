@@ -242,6 +242,38 @@ public class RBTree {
 		
 	}
 	
+	private RBNode findSuccessor(RBNode node)
+	{
+		// First, find the first parent such that our node argument will be in its left subtree.
+		RBNode parent = node.getParent();
+		while (parent != null && parent.getKey() < node.getKey())
+		{
+			parent = parent.getParent();
+		}
+		
+		// If we ended up with a null parent, it means we have no successor.
+		if (parent == null)
+		{
+			return null;
+		}
+		
+		// If the parent has no right subtree, then the parent is the successor.
+		if (parent.getRight() == null)
+		{
+			return parent;
+		}
+		
+		// If the parent has a right subtree, the node's successor will be the
+		// minimum node of that subtree.
+		RBNode min = parent.getRight();
+		while (min.getLeft() != null)
+		{
+			min = min.getLeft();
+		}
+		
+		return min;
+	}
+	
 	private void collectKeysInorder(RBNode node, List<Integer> keysList)
 	{
 		if (node == null)
