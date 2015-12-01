@@ -18,6 +18,7 @@ public class RBTree {
 		private int key;
 		private String value;
 		private boolean isRed; // If false, it's black.
+		private RBNode parent;
 		private RBNode leftChild;
 		private RBNode rightChild;
 		
@@ -78,6 +79,14 @@ public class RBTree {
 		
 		public void setValue(String value) {
 			this.value = value;
+		}
+		
+		public RBNode getParent() {
+			return this.parent;
+		}
+		
+		public void setParent(RBNode node) {
+			this.parent = node;
 		}
 	}
 
@@ -213,6 +222,22 @@ public class RBTree {
 	private RBNode searchNode(int key)
 	{
 		return null;
+	}
+	
+	/**
+	 * Rotate a given node and its right child to the left. 
+	 */
+	private void rotateLeft(RBNode node)
+	{
+		
+	}
+	
+	/**
+	 * Rotate a given node and its left child to the right. 
+	 */
+	private void rotateRight(RBNode node)
+	{
+		
 	}
 	
 	private void collectKeysInorder(RBNode node, List<Integer> keysList)
