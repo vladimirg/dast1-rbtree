@@ -10,6 +10,10 @@ import java.lang.reflect.Array;
  */
 
 public class RBTree {
+	private RBNode root;
+	private RBNode min;
+	private RBNode max;
+	private int size;
 
 	/**
 	 * public class RBNode
@@ -88,7 +92,7 @@ public class RBTree {
 	 *
 	 */
 	public RBNode getRoot() {
-		return null; // to be replaced by student code
+		return root;
 	}
 
 	/**
@@ -98,7 +102,10 @@ public class RBTree {
 	 *
 	 */
 	public boolean empty() {
-		return false; // to be replaced by student code
+		if (getRoot() == null) {
+			return true; // to be replaced by student code
+		}
+		return false;
 	}
 
 	/**
@@ -108,7 +115,7 @@ public class RBTree {
 	 * otherwise, returns null
 	 */
 	public String search(int k) {
-		return "42"; // to be replaced by student code
+		return searchNode(k).value; // to be replaced by student code
 	}
 
 	/**
@@ -142,7 +149,7 @@ public class RBTree {
 	 * if the tree is empty
 	 */
 	public String min() {
-		return "42"; // to be replaced by student code
+		return min.getValue(); // to be replaced by student code
 	}
 
 	/**
@@ -152,7 +159,7 @@ public class RBTree {
 	 * if the tree is empty
 	 */
 	public String max() {
-		return "42"; // to be replaced by student code
+		return max.getValue(); // to be replaced by student code
 	}
 
 	/**
@@ -198,7 +205,7 @@ public class RBTree {
 	 * precondition: none postcondition: none
 	 */
 	public int size() {
-		return 42; // to be replaced by student code
+		return size; // to be replaced by student code
 	}
 
 	/**
@@ -210,13 +217,28 @@ public class RBTree {
 	 * Private methods
 	 */
 	
-	private RBNode searchNode(int key)
-	{
-		return null;
+	private RBNode searchNode(int key) {
+		return searchNode(key, root);
 	}
 	
-	private void collectKeysInorder(RBNode node, List<Integer> keysList)
-	{
+	private RBNode searchNode(int key, RBNode node){
+		if (key == node.key) {
+			return node;
+		}
+		if (key < node.key) {
+			if (node.leftChild != null) {
+				return searchNode(key, node.leftChild);
+			}
+			return null;
+		}
+		if (node.rightChild != null) {
+			return searchNode(key, node.rightChild);
+		}
+		return null;
+
+	}
+	
+	private void collectKeysInorder(RBNode node, List<Integer> keysList) {
 		if (node == null)
 		{
 			return;
@@ -227,8 +249,7 @@ public class RBTree {
 		this.collectKeysInorder(node.getRight(), keysList);
 	}
 	
-	private void collectValuesInorder(RBNode node, List<String> keysList)
-	{
+	private void collectValuesInorder(RBNode node, List<String> keysList) {
 		if (node == null)
 		{
 			return;
@@ -243,16 +264,14 @@ public class RBTree {
 	 * Helper classes
 	 */
 	
-	private static class List<Type>
-	{
+	private static class List<Type> {
 		private static final int INITIAL_LENGTH = 16;
 		private static final int INCREASE_FACTOR = 2;
 		
 		private Type[] storageArray;
 		private int numberOfItemsStored;
 		
-		public List()
-		{
+		public List() {
 			@SuppressWarnings("unchecked")
 			Type[] storageArray = (Type[])Array.newInstance(this.getClass(), List.INITIAL_LENGTH);
 			this.storageArray = storageArray;
