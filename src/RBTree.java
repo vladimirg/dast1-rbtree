@@ -210,6 +210,11 @@ public class RBTree {
 	 * Private methods
 	 */
 	
+	private RBNode searchNode(int key)
+	{
+		return null;
+	}
+	
 	private void collectKeysInorder(RBNode node, List<Integer> keysList)
 	{
 		if (node == null)
