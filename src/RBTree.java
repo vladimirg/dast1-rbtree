@@ -55,6 +55,7 @@ public class RBTree {
 		
 		public void setLeft(RBNode leftChild) {
 			this.leftChild = leftChild;
+			leftChild.setParent(this);
 		}
 
 		public RBNode getRight() {
@@ -63,6 +64,7 @@ public class RBTree {
 		
 		public void setRight(RBNode rightChild) {
 			this.rightChild = rightChild;
+			rightChild.setParent(this);
 		}
 
 		public int getKey() {
