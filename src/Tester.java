@@ -7,8 +7,22 @@ public class Tester {
 	@Test
 	public static void main(String[] args)
 	{
-		int[] insertions = getKeysFromFile("test data/test_data_insert_1.txt");
-		int[] deletions = getKeysFromFile("test data/test_data_delete_1.txt");
+		int[] insertions;
+		int[] deletions;
+		
+		// Run the simple test:
+		insertions = new int[] {6, 7, 8, 9, 10, 5, 4, 3, 2, 1};
+		deletions = new int[]  {2, 9, 1, 10, 5, 4, 3, 8, 7, 6};
+		runFullTestSuite(insertions, deletions);
+		
+		// Run the big dataset test:
+		insertions = getKeysFromFile("test data/test_data_insert_1.txt");
+		deletions = getKeysFromFile("test data/test_data_delete_1.txt");
+		runFullTestSuite(insertions, deletions);
+	}
+	
+	private static void runFullTestSuite(int[] insertions, int[] deletions)
+	{
 		List<Integer> keysInTree = new ArrayList<Integer>();
 		RBTree tree = new RBTree();
 		
@@ -17,25 +31,47 @@ public class Tester {
 		for (int ix = 0; ix < insertions.length; ix++)
 		{
 			int keyToInsert = insertions[ix];
-			String valueToInsert = Integer.toString(keyToInsert);
-			tree.insert(keyToInsert, valueToInsert);
 			keysInTree.add(keyToInsert);
+			String valueToInsert = Integer.toString(keyToInsert);
+			
+			int previousRedCount = countReds(tree.getRoot());
+			int colorChanges = tree.insert(keyToInsert, valueToInsert);
+			int newRedCount = countReds(tree.getRoot());
+			
+			// -1 because a newly inserted node is red, but doesn't count as a color change:
+			assert colorChanges >= (Math.abs(newRedCount - previousRedCount) - 1);
 			
 			verifyTreeMatchesArray(tree, listToArray(keysInTree));
-			verifyRBTreeConstrains(tree);
+			verifyRBTreeInvariants(tree);
 		}
 		
 		for (int ix = 0; ix < deletions.length; ix++)
 		{
 			int keyToDelete = deletions[ix];
-			tree.delete(keyToDelete);
-			keysInTree.remove(keyToDelete);
+			keysInTree.remove(new Integer(keyToDelete));
+			
+			int previousRedCount = countReds(tree.getRoot());
+			int colorChanges = tree.delete(keyToDelete);
+			int newRedCount = countReds(tree.getRoot());
+			
+			// -1 because a deleted node may be red, and that doesn't count towards a color change.
+			assert colorChanges >= (Math.abs(newRedCount - previousRedCount) - 1);
 			
 			verifyTreeMatchesArray(tree, listToArray(keysInTree));
-			verifyRBTreeConstrains(tree);
+			verifyRBTreeInvariants(tree);
 		}
 		
 		verifyEmptyTree(tree);
+	}
+	
+	private static int countReds(RBTree.RBNode node)
+	{
+		if (node == null)
+		{
+			return 0;
+		}
+		
+		return (node.isRed() ? 1 : 0) + countReds(node.getLeft()) + countReds(node.getRight());
 	}
 	
 	private static void testRandomDataset()
@@ -91,15 +127,15 @@ public class Tester {
 		}
 	}
 	
-	private static void verifyRBTreeConstrains(RBTree tree)
+	private static void verifyRBTreeInvariants(RBTree tree)
 	{
 		RBTree.RBNode treeRoot = tree.getRoot();
 		assert treeRoot == null || (!treeRoot.isRed() && treeRoot.isBlack());
 		
-		verifyRBTreeConstrains(treeRoot, Integer.MIN_VALUE, Integer.MAX_VALUE);
+		verifyRBTreeInvariants(treeRoot, Integer.MIN_VALUE, Integer.MAX_VALUE);
 	}
 	
-	private static int verifyRBTreeConstrains(RBTree.RBNode node, int minKey, int maxKey)
+	private static int verifyRBTreeInvariants(RBTree.RBNode node, int minKey, int maxKey)
 	{
 		if (node == null)
 		{
@@ -120,8 +156,8 @@ public class Tester {
 		}
 		
 		// Verify black height:
-		int leftBlackHeight = verifyRBTreeConstrains(left, minKey, node.getKey());
-		int rightBlackHeight = verifyRBTreeConstrains(right, node.getKey(), maxKey);
+		int leftBlackHeight = verifyRBTreeInvariants(left, minKey, node.getKey());
+		int rightBlackHeight = verifyRBTreeInvariants(right, node.getKey(), maxKey);
 		
 		assert leftBlackHeight == rightBlackHeight;
 		
