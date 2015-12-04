@@ -256,15 +256,14 @@ public class RBTree {
 	 * array if the tree is empty.
 	 */
 	public int[] keysToArray() {
-		List<Integer> keys = new List<Integer>();
+		List keys = new List();
 		
 		this.collectKeysInorder(this.getRoot(), keys);
 		
-		Integer[] keysArray = keys.toArray();
-		int[] result = new int[keysArray.length];
+		int[] result = new int[keys.length()];
 		for (int ix = 0; ix < result.length; ix++)
 		{
-			result[ix] = keysArray[ix];
+			result[ix] = (int)keys.getItem(ix);
 		}
 		
 		return result;
@@ -277,11 +276,17 @@ public class RBTree {
 	 * respective keys, or an empty array if the tree is empty.
 	 */
 	public String[] valuesToArray() {
-		List<String> values = new List<String>();
+		List values = new List();
 		
 		this.collectValuesInorder(this.getRoot(), values);
 		
-		return values.toArray();
+		String[] result = new String[values.length()];
+		for (int ix = 0; ix < result.length; ix++)
+		{
+			result[ix] = (String)values.getItem(ix);
+		}
+		
+		return result;
 	}
 
 	/**
@@ -565,7 +570,7 @@ public class RBTree {
 		}
 	}
 	
-	private void collectKeysInorder(RBNode node, List<Integer> keysList) {
+	private void collectKeysInorder(RBNode node, List keysList) {
 		if (node == null)
 		{
 			return;
@@ -576,7 +581,7 @@ public class RBTree {
 		this.collectKeysInorder(node.getRight(), keysList);
 	}
 	
-	private void collectValuesInorder(RBNode node, List<String> keysList) {
+	private void collectValuesInorder(RBNode node, List keysList) {
 		if (node == null)
 		{
 			return;
@@ -591,26 +596,23 @@ public class RBTree {
 	 * Helper classes
 	 */
 	
-	private static class List<Type> {
+	private static class List {
 		private static final int INITIAL_LENGTH = 16;
 		private static final int INCREASE_FACTOR = 2;
 		
-		private Type[] storageArray;
+		private Object[] storageArray;
 		private int numberOfItemsStored;
 		
 		public List() {
-			@SuppressWarnings("unchecked")
-			Type[] storageArray = (Type[])Array.newInstance(this.getClass(), List.INITIAL_LENGTH);
-			this.storageArray = storageArray;
+			this.storageArray = new Object[INITIAL_LENGTH];
 			this.numberOfItemsStored = 0;
 		}
 		
-		public void addItem(Type item)
+		public void addItem(Object item)
 		{
 			if (this.numberOfItemsStored == this.storageArray.length)
 			{
-				@SuppressWarnings("unchecked")
-				Type[] increasedArray = (Type[])Array.newInstance(this.getClass(), this.storageArray.length * List.INCREASE_FACTOR);
+				Object[] increasedArray = new Object[this.storageArray.length * List.INCREASE_FACTOR];
 				
 				for (int ix = 0; ix < this.numberOfItemsStored; ix++)
 				{
@@ -622,17 +624,14 @@ public class RBTree {
 			this.numberOfItemsStored++;
 		}
 		
-		public Type[] toArray()
+		public int length()
 		{
-			@SuppressWarnings("unchecked")
-			Type[] result = (Type[])Array.newInstance(this.getClass(), this.numberOfItemsStored);
-			
-			for (int ix = 0; ix < this.numberOfItemsStored; ix++)
-			{
-				result[ix] = this.storageArray[ix];
-			}
-			
-			return result;
+			return this.numberOfItemsStored;
+		}
+		
+		public Object getItem(int index)
+		{
+			return this.storageArray[index];
 		}
 	}
 }
