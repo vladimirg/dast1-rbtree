@@ -19,15 +19,19 @@ public class RBTree {
 	 * public class RBNode
 	 */
 	public static class RBNode {
+		public enum Color {
+			BLACK, RED;
+		}
+		
 		private int key;
 		private String value;
-		private boolean isRed; // If false, it's black.
+		private Color color;
 		private RBNode parent;
 		private RBNode leftChild;
 		private RBNode rightChild;
 		
 		public RBNode() {
-			this.isRed = true;
+			this.color = Color.RED;
 		}
 		
 		public RBNode(int key, String value) {
@@ -38,19 +42,34 @@ public class RBTree {
 		}
 		
 		public boolean isRed() {
-			return this.isRed;
+			return this.color == Color.RED;
 		}
 		
 		public boolean isBlack() {
-			return !this.isRed;
+			return this.color == Color.BLACK;
 		}
 		
 		public void setToRed() {
-			this.isRed = true;
+			this.setColor(Color.RED);
 		}
 		
 		public void setToBlack() {
-			this.isRed = false;
+			this.setColor(Color.BLACK);
+		}
+		
+		// Return 1 if color changed, 0 otherwise.
+		public int setColor(Color newColor) {
+			if (this.color == newColor) {
+				return 0;
+			}
+			else {
+				this.color = newColor;
+				return 1;
+			}
+		}
+		
+		public Color getColor() {
+			return this.color;
 		}
 
 		public RBNode getLeft() {
@@ -59,7 +78,10 @@ public class RBTree {
 		
 		public void setLeft(RBNode leftChild) {
 			this.leftChild = leftChild;
-			leftChild.setParent(this);
+			
+			if (leftChild != null) {
+				leftChild.setParent(this);
+			}
 		}
 
 		public RBNode getRight() {
@@ -68,7 +90,10 @@ public class RBTree {
 		
 		public void setRight(RBNode rightChild) {
 			this.rightChild = rightChild;
-			rightChild.setParent(this);
+			
+			if (rightChild != null) {
+				rightChild.setParent(this);
+			}
 		}
 
 		public int getKey() {
@@ -93,6 +118,32 @@ public class RBTree {
 		
 		public void setParent(RBNode node) {
 			this.parent = node;
+		}
+		
+		public void replaceChild(RBNode oldChild, RBNode newChild) {
+			if (this.leftChild == oldChild) {
+				this.leftChild.setParent(null);
+				this.setLeft(newChild);
+				oldChild.setParent(null);
+			}
+			else if (this.rightChild == oldChild) {
+				this.rightChild.setParent(null);
+				this.setRight(newChild);
+				oldChild.setParent(null);
+			}
+		}
+		
+		public RBNode getSibling() {
+			if (this.parent == null) {
+				return null;
+			}
+			
+			if (this == this.parent.getLeft()) {
+				return this.parent.getRight();
+			}
+			else {
+				return this.parent.getLeft();
+			}
 		}
 	}
 
@@ -150,7 +201,32 @@ public class RBTree {
 	 * with key k was not found in the tree.
 	 */
 	public int delete(int k) {
-		return 42; // to be replaced by student code
+		RBNode nodeToDelete = this.searchNode(k);
+		if (nodeToDelete == null) {
+			return -1;
+		}
+		
+		if (nodeToDelete.getLeft() == null || nodeToDelete.getRight() == null) {
+			// nodeToDelete has at most one child, physically delete it:
+			return this.deleteNode(nodeToDelete);
+		}
+		else  {
+			// nodeToDelete has two children, replace it with its successor:
+			RBNode successor = this.findSuccessor(nodeToDelete);
+			
+			// We're going to delete the successor, but what if it's the max?
+			boolean updateMax = (successor == this.max);
+			
+			nodeToDelete.setKey(successor.getKey());
+			nodeToDelete.setValue(successor.getValue());
+			
+			int colorChanges = this.deleteNode(successor);
+			if (updateMax) {
+				this.max = nodeToDelete;
+			}
+			
+			return colorChanges;
+		}
 	}
 
 	/**
@@ -294,6 +370,199 @@ public class RBTree {
 		}
 		
 		return min;
+	}
+	
+	private RBNode findPredecessor(RBNode node) {
+		// If the node has a left subtree, its predecessor is its max:
+		if (node.getLeft() != null) {
+			RBNode pred = node.getLeft();
+			while (pred.getRight() != null) {
+				pred = pred.getRight();
+			}
+			
+			return pred;
+		}
+		
+		// Find an ancestor which is smaller than the node.
+		RBNode parent = node.getParent();
+		while (parent != null && parent.getKey() > node.getKey()) {
+			parent = parent.getParent();
+		}
+		
+		// If it has no left subtree, then it is the predecessor:
+		if (parent.getLeft() == null) {
+			return parent;
+		}
+		
+		// Else, the predecessor is the max of the subtree:
+		RBNode pred = parent.getLeft();
+		while (pred.getRight() != null) {
+			pred = pred.getRight();
+		}
+		
+		return pred;
+	}
+	
+	private int deleteNode(RBNode nodeToDelete) {
+		// We're going to delete this node for sure, so update size: 
+		this.size -= 1;
+		
+		// If we're deleting the min or max nodes, we should update their pointers:
+		if (nodeToDelete == this.min) {
+			this.min = this.findSuccessor(nodeToDelete);
+		}
+		if (nodeToDelete == this.max) { // Not using "else" because in a one-node tree, the root is both the min and the max.
+			this.max = this.findPredecessor(nodeToDelete);
+		}
+		
+		int colorChanges = 0;
+		
+		if (nodeToDelete.getLeft() == null && nodeToDelete.getRight() == null) {
+			// nodeToDelete has no children, delete it immediately.
+			RBNode parent = nodeToDelete.getParent();
+			
+			// Is this the last node in the tree?
+			if (parent == null) {
+				this.root = null;
+			}
+			else {
+				if (nodeToDelete.isBlack()) {
+					/* The node to delete is both black and has no real children.
+					 * This is a problem, since we don't use instance placeholders for the
+					 * terminal leaves. Our solution is to delay deleting this node
+					 * until the tree fixing is complete, and only then remove it.
+					 * This is OK, because fixing the tree shouldn't change neither the
+					 * children of a double-black node nor its parent, including the
+					 * node to delete. */
+					colorChanges += this.fixTreeAfterDeletion(nodeToDelete);
+				}
+				
+				parent.replaceChild(nodeToDelete, null);
+			}
+		}
+		else if (nodeToDelete.getLeft() == null || nodeToDelete.getRight() == null) {
+			// nodeToDelete has only one child, replace it with its child.
+			RBNode child;
+			if (nodeToDelete.getLeft() != null) {
+				child = nodeToDelete.getLeft();
+			}
+			else {
+				child = nodeToDelete.getRight();
+			}
+			
+			RBNode parent = nodeToDelete.getParent();
+			parent.replaceChild(nodeToDelete, child);
+			
+			// If the deleted node was black, we may be in trouble for violating the black height:
+			if (nodeToDelete.isBlack()) {
+				if (child.isRed()) {
+					// The new child is red, we're cool.
+					child.setToBlack();
+					colorChanges++;
+				}
+				else {
+					// Mark it and fix the tree.
+					colorChanges += this.fixTreeAfterDeletion(child);
+				}
+			}
+		}
+		
+		return colorChanges;
+	}
+	
+	private int fixTreeAfterDeletion(RBNode doubleBlackNode) {
+		// If we reached the root, do nothing:
+		if (doubleBlackNode == this.root) {
+			return 0;
+		}
+		
+		// If the double black node is red, balance it by changing it to black:
+		if (doubleBlackNode.isRed()) {
+			doubleBlackNode.setToBlack();
+			return 1;
+		}
+		
+		RBNode parent = doubleBlackNode.getParent();
+		RBNode sibling = doubleBlackNode.getSibling();
+		
+		if (sibling.isRed()) {
+			// Case 1: the sibling is red.
+			if (sibling == parent.getRight()) {
+				this.rotateLeft(parent);
+			}
+			else {
+				this.rotateRight(parent);
+			}
+			
+			parent.setToRed();
+			sibling.setToBlack();
+			return 2 + this.fixTreeAfterDeletion(doubleBlackNode);
+		}
+		else {
+			// The sibling is black.
+			
+			RBNode proximalNephew; // The nephew closer to the double black node.
+			RBNode distalNephew; // The nephew farther from the double black node.
+			
+			if (doubleBlackNode == parent.getLeft()) {
+				proximalNephew = sibling.getLeft();
+				distalNephew = sibling.getRight();
+			}
+			else {
+				proximalNephew = sibling.getRight();
+				distalNephew = sibling.getLeft();
+			}
+			
+			if ((proximalNephew == null || proximalNephew.isBlack()) &&
+				(distalNephew == null || distalNephew.isBlack())) {
+				// Case 2: both nephews are black.
+				sibling.setToRed();
+				return 1 + this.fixTreeAfterDeletion(parent);
+			}
+			else {
+				// At least one child is red.
+				int colorChanges = 0;
+				
+				if (distalNephew == null || distalNephew.isBlack()) {
+					// Case 3: the distal nephew is black (so the proximal nephew must be red).
+					// Rotate as needed:
+					RBNode newProximalNephew;
+					if (proximalNephew == sibling.getLeft()) {
+						this.rotateRight(sibling);
+						newProximalNephew = proximalNephew.getLeft();
+					}
+					else {
+						this.rotateLeft(sibling);
+						newProximalNephew = proximalNephew.getRight();
+					}
+					
+					// After rotation, update the old relation's colors:
+					proximalNephew.setToBlack();
+					sibling.setToRed();
+					colorChanges += 2;
+					
+					// Update our relations:
+					sibling = proximalNephew;
+					distalNephew = sibling; // Note that after this operation, the distal nephew is red. 
+					proximalNephew = newProximalNephew;
+				}
+				
+				// Case 4: the distal nephew is red (the proximal nephew can be either red or black).
+				RBNode.Color parentColor = parent.getColor();
+				if (sibling == parent.getRight()) {
+					this.rotateLeft(parent);
+				}
+				else {
+					this.rotateRight(parent);
+				}
+				
+				colorChanges += sibling.setColor(parentColor);
+				colorChanges += parent.setColor(RBNode.Color.BLACK);
+				colorChanges += distalNephew.setColor(RBNode.Color.BLACK);
+				
+				return colorChanges;
+			}
+		}
 	}
 	
 	private void collectKeysInorder(RBNode node, List<Integer> keysList) {
