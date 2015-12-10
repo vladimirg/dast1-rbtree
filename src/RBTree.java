@@ -1,4 +1,3 @@
-import java.lang.reflect.Array;
 
 /**
  *
@@ -36,7 +35,6 @@ public class RBTree {
 		
 		public RBNode(int key, String value) {
 			this();
-			
 			this.key = key;
 			this.value = value;
 		}
@@ -165,7 +163,7 @@ public class RBTree {
 	 */
 	public boolean empty() {
 		if (getRoot() == null) {
-			return true; // to be replaced by student code
+			return true;
 		}
 		return false;
 	}
@@ -177,7 +175,10 @@ public class RBTree {
 	 * otherwise, returns null
 	 */
 	public String search(int k) {
-		return searchNode(k).value; // to be replaced by student code
+		if (searchNode(k) != null) {
+			return searchNode(k).value;
+		}
+		return null;
 	}
 
 	/**
@@ -189,7 +190,26 @@ public class RBTree {
 	 * with key k already exists in the tree.
 	 */
 	public int insert(int k, String v) {
-		return 42; // to be replaced by student code
+		RBNode myNode = new RBNode(k, v);
+		if (this.empty()) {
+			this.root = myNode;
+			this.min = myNode;
+			this.max = myNode;
+			size++;
+			return 0;
+		}
+		RBNode myLeaf = searchLeaf(k);
+		if (myLeaf != null) {
+			myNode.parent = myLeaf;
+			if (myNode.key < myLeaf.key) {
+				myLeaf.leftChild = myNode;
+			} else {
+				myLeaf.rightChild = myNode;
+			}
+			size++;
+			return insertFixup(myNode);
+		}
+		return -1;
 	}
 
 	/**
@@ -236,7 +256,10 @@ public class RBTree {
 	 * if the tree is empty
 	 */
 	public String min() {
-		return min.getValue(); // to be replaced by student code
+		if (this.min != null) {
+			return this.min.getValue();
+		}
+		return null;
 	}
 
 	/**
@@ -246,7 +269,10 @@ public class RBTree {
 	 * if the tree is empty
 	 */
 	public String max() {
-		return max.getValue(); // to be replaced by student code
+		if (this.max != null) {
+			return max.getValue();
+		}
+		return null;
 	}
 
 	/**
@@ -297,7 +323,7 @@ public class RBTree {
 	 * precondition: none postcondition: none
 	 */
 	public int size() {
-		return size; // to be replaced by student code
+		return this.size;
 	}
 
 	/**
@@ -310,39 +336,87 @@ public class RBTree {
 	 */
 	
 	private RBNode searchNode(int key) {
-		return searchNode(key, root);
+		return searchNode(key, this.root);
 	}
 	
 	private RBNode searchNode(int key, RBNode node){
-		if (key == node.key) {
-			return node;
-		}
-		if (key < node.key) {
-			if (node.leftChild != null) {
-				return searchNode(key, node.leftChild);
+		if (node != null) {
+			if (key == node.key) {
+				return node;
 			}
-			return null;
-		}
-		if (node.rightChild != null) {
-			return searchNode(key, node.rightChild);
+			if (key < node.key) {
+				if (node.leftChild != null) {
+					return searchNode(key, node.leftChild);
+				}
+				return null;
+			}
+			if (node.rightChild != null) {
+				return searchNode(key, node.rightChild);
+			}
 		}
 		return null;
+	}
+	
+	private RBNode searchLeaf(int key) {
+		if (!this.empty()) {
+			return searchLeaf(key, this.root);
+		}
+		return null;
+	}
+	
+	private RBNode searchLeaf(int key, RBNode node) {
+		RBNode myNode = node;
+		if (key == myNode.key) {
+			return null;
+		}
+		if (key < myNode.key) {
+			if (myNode.leftChild != null) {
+				return searchLeaf(key, myNode.leftChild);
+			}
+			return myNode;
+		}
+		if (myNode.rightChild != null) {
+			return searchLeaf(key, myNode.rightChild);
+		}
+		return myNode;
+	}
+	
+	private void toLeftChild(RBNode x, RBNode y) {
+		x.leftChild = y;
+		y.parent = x;
+	}
+	
+	private void toRightChild(RBNode x, RBNode y) {
+		x.rightChild = y;
+		y.parent = x;
+	}
+	
+	private void transplate(RBNode x, RBNode y) {
+		if (x.equals(x.parent.leftChild)) {
+			toLeftChild(x.parent, y);
+		} else {
+			toRightChild(x.parent, y);
+		}
 	}
 	
 	/**
 	 * Rotate a given node and its right child to the left. 
 	 */
-	private void rotateLeft(RBNode node)
-	{
-		
+	private void rotateLeft(RBNode x) {
+		RBNode y = x.rightChild;
+		transplate(x, y);
+		toRightChild(x, y.leftChild);
+		toLeftChild(y, x);
 	}
 	
 	/**
 	 * Rotate a given node and its left child to the right. 
 	 */
-	private void rotateRight(RBNode node)
-	{
-		
+	private void rotateRight(RBNode x) {
+		RBNode y = x.leftChild;
+		transplate(x, y);
+		toLeftChild(x, y.rightChild);
+		toRightChild(y, x);
 	}
 	
 	private RBNode findSuccessor(RBNode node)
@@ -406,6 +480,67 @@ public class RBTree {
 		}
 		
 		return pred;
+	}
+	
+	private int insertFixup(RBNode node) {
+		
+		if (node.key < this.min.key) {
+			this.min = node;
+		}
+		if (this.max.key < node.key) {
+			this.max = node;
+		}
+		
+		int colorChange = 0;
+		while (node.parent.color == RBNode.Color.RED) {
+			RBNode parent = node.parent;
+			RBNode granny = parent.parent;
+			
+			// parent is a left child
+			if (parent.equals(granny.leftChild)) {
+				RBNode uncle = granny.rightChild;
+				int[] temp = insertCases(node, uncle);
+				colorChange += temp[0];
+				if (temp[1] == 1) {
+					node = granny;
+				}
+			} else {
+				// parent is a right child
+				RBNode uncle = granny.leftChild;
+				int[] temp = insertCases(node, uncle);
+				colorChange += temp[0];
+				if (temp[1] == 1) {
+					node = granny;
+				}
+			}
+		}
+		return colorChange;
+	}
+	
+	private int[] insertCases(RBNode node, RBNode uncle) {
+		RBNode parent = node.parent;
+		RBNode granny = parent.parent;
+		int colorChange = 0;
+		int isCase1 = 0;
+		
+		// case 1
+		if (uncle.color == RBNode.Color.RED) {
+			colorChange += parent.setColor(RBNode.Color.BLACK);
+			colorChange += uncle.setColor(RBNode.Color.BLACK);
+			colorChange += granny.setColor(RBNode.Color.RED);
+			isCase1 = 1;
+		} else {
+			// case 2
+			if (node.equals(parent.rightChild)) {
+				rotateLeft(parent);
+			}
+			// case 3
+			colorChange += parent.setColor(RBNode.Color.BLACK);
+			colorChange += granny.setColor(RBNode.Color.RED);
+			rotateRight(granny);
+		}
+		int[] result = {colorChange, isCase1};
+		return result;
 	}
 	
 	private int deleteNode(RBNode nodeToDelete) {
