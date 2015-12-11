@@ -196,7 +196,7 @@ public class RBTree {
 			this.min = myNode;
 			this.max = myNode;
 			size++;
-			return 0;
+			return myNode.setColor(RBNode.Color.BLACK);
 		}
 		RBNode myLeaf = searchLeaf(k);
 		if (myLeaf != null) {
@@ -366,6 +366,7 @@ public class RBTree {
 	
 	private RBNode searchLeaf(int key, RBNode node) {
 		RBNode myNode = node;
+		
 		if (key == myNode.key) {
 			return null;
 		}
@@ -392,10 +393,12 @@ public class RBTree {
 	}
 	
 	private void transplate(RBNode x, RBNode y) {
-		if (x.equals(x.parent.leftChild)) {
-			toLeftChild(x.parent, y);
+		RBNode parent = x.parent;
+		
+		if (x == parent.leftChild) {
+			toLeftChild(parent, y);
 		} else {
-			toRightChild(x.parent, y);
+			toRightChild(parent, y);
 		}
 	}
 	
@@ -404,8 +407,13 @@ public class RBTree {
 	 */
 	private void rotateLeft(RBNode x) {
 		RBNode y = x.rightChild;
-		transplate(x, y);
-		toRightChild(x, y.leftChild);
+		
+		if (x.parent != null) {
+			transplate(x, y);
+		}
+		if (y.leftChild != null) {
+			toRightChild(x, y.leftChild);
+		}
 		toLeftChild(y, x);
 	}
 	
@@ -414,8 +422,12 @@ public class RBTree {
 	 */
 	private void rotateRight(RBNode x) {
 		RBNode y = x.leftChild;
-		transplate(x, y);
-		toLeftChild(x, y.rightChild);
+		if (x.parent != null) {
+			transplate(x, y);
+		}
+		if (y.rightChild != null) {
+			toLeftChild(x, y.rightChild);
+		}
 		toRightChild(y, x);
 	}
 	
@@ -492,25 +504,40 @@ public class RBTree {
 		}
 		
 		int colorChange = 0;
-		while (node.parent.color == RBNode.Color.RED) {
+		while (node.parent.isRed()) {
 			RBNode parent = node.parent;
 			RBNode granny = parent.parent;
 			
-			// parent is a left child
-			if (parent.equals(granny.leftChild)) {
-				RBNode uncle = granny.rightChild;
-				int[] temp = insertCases(node, uncle);
-				colorChange += temp[0];
-				if (temp[1] == 1) {
-					node = granny;
-				}
+			// no grandpa 
+			if (granny == null) {
+				colorChange += parent.setColor(RBNode.Color.BLACK);
 			} else {
-				// parent is a right child
-				RBNode uncle = granny.leftChild;
-				int[] temp = insertCases(node, uncle);
-				colorChange += temp[0];
-				if (temp[1] == 1) {
-					node = granny;
+				// parent is a left child
+				if (parent == granny.leftChild) {
+					RBNode uncle = granny.rightChild;
+					// no right uncle
+					if (uncle == null) {
+						rotateRight(granny);
+					} else {
+						int[] temp = insertCases(node, uncle);
+						colorChange += temp[0];
+						if (temp[1] == 1) {
+							node = granny;
+						}
+					}
+				} else {
+					// parent is a right child
+					RBNode uncle = granny.leftChild;
+					// no left uncle
+					if (uncle == null) {
+						rotateLeft(granny);
+					} else {
+						int[] temp = insertCases(node, uncle);
+						colorChange += temp[0];
+						if (temp[1] == 1) {
+							node = granny;
+						}
+					}
 				}
 			}
 		}
@@ -523,21 +550,44 @@ public class RBTree {
 		int colorChange = 0;
 		int isCase1 = 0;
 		
-		// case 1
-		if (uncle.color == RBNode.Color.RED) {
+		// case 1: red uncle
+		if (uncle.isRed()) {
 			colorChange += parent.setColor(RBNode.Color.BLACK);
 			colorChange += uncle.setColor(RBNode.Color.BLACK);
-			colorChange += granny.setColor(RBNode.Color.RED);
-			isCase1 = 1;
-		} else {
-			// case 2
-			if (node.equals(parent.rightChild)) {
-				rotateLeft(parent);
+			if (granny.parent != null) {
+				colorChange += granny.setColor(RBNode.Color.RED);
+				isCase1 = 1;
 			}
-			// case 3
-			colorChange += parent.setColor(RBNode.Color.BLACK);
-			colorChange += granny.setColor(RBNode.Color.RED);
-			rotateRight(granny);
+		} else {
+			// cases 2&3 when parent is a left child
+			if (parent == granny.leftChild) {
+				// case 2: black uncle & node is a right child
+				if (node == parent.rightChild) {
+					rotateLeft(parent);
+				}
+				// case 3: black uncle & node is a left child
+				parent = node.parent;
+				colorChange += parent.setColor(RBNode.Color.BLACK);
+				colorChange += granny.setColor(RBNode.Color.RED);
+				if (parent == granny.leftChild) {
+					rotateRight(granny);
+				}
+			} else {
+				// cases 2&3 when parent is a right child
+				if (uncle == granny.rightChild) {
+					// case 2: black uncle & node is a left child
+					if (node == parent.leftChild) {
+						rotateRight(parent);
+					}
+					// case 3: black uncle & node is a right child
+					parent = node.parent;
+					colorChange += parent.setColor(RBNode.Color.BLACK);
+					colorChange += granny.setColor(RBNode.Color.RED);
+					if (parent == granny.rightChild) {
+						rotateLeft(granny);
+					}
+				}
+			}
 		}
 		int[] result = {colorChange, isCase1};
 		return result;
