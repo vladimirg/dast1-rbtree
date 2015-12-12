@@ -384,21 +384,29 @@ public class RBTree {
 	
 	private void toLeftChild(RBNode x, RBNode y) {
 		x.leftChild = y;
-		y.parent = x;
+		if (y != null) {
+			y.parent = x;
+		}
 	}
 	
 	private void toRightChild(RBNode x, RBNode y) {
 		x.rightChild = y;
-		y.parent = x;
+		if (y != null) {
+			y.parent = x;
+		}
 	}
 	
 	private void transplate(RBNode x, RBNode y) {
 		RBNode parent = x.parent;
 		
-		if (x == parent.leftChild) {
-			toLeftChild(parent, y);
+		if (parent == null) {
+			y.parent = null;
 		} else {
-			toRightChild(parent, y);
+			if (x == parent.leftChild) {
+				toLeftChild(parent, y);
+			} else {
+				toRightChild(parent, y);
+			}
 		}
 	}
 	
@@ -408,12 +416,8 @@ public class RBTree {
 	private void rotateLeft(RBNode x) {
 		RBNode y = x.rightChild;
 		
-		if (x.parent != null) {
-			transplate(x, y);
-		}
-		if (y.leftChild != null) {
-			toRightChild(x, y.leftChild);
-		}
+		transplate(x, y);
+		toRightChild(x, y.leftChild);
 		toLeftChild(y, x);
 		
 		if (y.parent == null) {
@@ -427,12 +431,8 @@ public class RBTree {
 	private void rotateRight(RBNode x) {
 		RBNode y = x.leftChild;
 		
-		if (x.parent != null) {
-			transplate(x, y);
-		}
-		if (y.rightChild != null) {
-			toLeftChild(x, y.rightChild);
-		}
+		transplate(x, y);
+		toLeftChild(x, y.rightChild);
 		toRightChild(y, x);
 		
 		if (y.parent == null) {
