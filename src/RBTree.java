@@ -514,6 +514,8 @@ public class RBTree {
 				RBNode uncle = granny.rightChild;
 				// no uncle --> parent becomes a red sibling, granny a black parent --> no loop
 				if (uncle == null) {
+					colorChange += granny.setColor(RBNode.Color.RED);
+					colorChange += parent.setColor(RBNode.Color.BLACK);
 					rotateRight(granny);
 				} else {
 					// cases 1,2,3 - exactly by the school pseudo cod
@@ -528,6 +530,8 @@ public class RBTree {
 				RBNode uncle = granny.leftChild;
 				// no uncle --> parent becomes a red sibling, granny a black parent --> no loop
 				if (uncle == null) {
+					colorChange += granny.setColor(RBNode.Color.RED);
+					colorChange += parent.setColor(RBNode.Color.BLACK);
 					rotateLeft(granny);
 				} else {
 					// cases 1,2,3 - exactly by the school pseudo cod
