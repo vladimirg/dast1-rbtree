@@ -415,6 +415,10 @@ public class RBTree {
 			toRightChild(x, y.leftChild);
 		}
 		toLeftChild(y, x);
+		
+		if (y.parent == null) {
+			this.root = y;
+		}
 	}
 	
 	/**
@@ -422,6 +426,7 @@ public class RBTree {
 	 */
 	private void rotateRight(RBNode x) {
 		RBNode y = x.leftChild;
+		
 		if (x.parent != null) {
 			transplate(x, y);
 		}
@@ -429,6 +434,10 @@ public class RBTree {
 			toLeftChild(x, y.rightChild);
 		}
 		toRightChild(y, x);
+		
+		if (y.parent == null) {
+			this.root = y;
+		}
 	}
 	
 	private RBNode findSuccessor(RBNode node)
