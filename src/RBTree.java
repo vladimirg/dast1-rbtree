@@ -410,6 +410,16 @@ public class RBTree {
 		}
 	}
 	
+	private void replace(RBNode x, RBNode y) {
+		transplate(x, y);
+		toLeftChild(y, x.leftChild);
+		toRightChild(y, x.rightChild);
+		
+		if (x == this.root) {
+			this.root = y;
+		}
+	}
+	
 	/**
 	 * Rotate a given node and its right child to the left. 
 	 */
@@ -420,7 +430,7 @@ public class RBTree {
 		toRightChild(x, y.leftChild);
 		toLeftChild(y, x);
 		
-		if (y.parent == null) {
+		if (x == this.root) {
 			this.root = y;
 		}
 	}
@@ -512,47 +522,33 @@ public class RBTree {
 			this.max = node;
 		}
 		
-		int colorChange = 0;
+		int colorChanges = 0;
 		while (node.parent.isRed()) {
 			RBNode parent = node.parent;
-			// always exists, cause otherwise the parent is a black root
+			// always exists, cause otherwise parent is a black root
 			RBNode granny = parent.parent;
 			
 			// parent is a left child
 			if (parent == granny.leftChild) {
-				RBNode uncle = granny.rightChild;
-				// no uncle --> parent becomes a red sibling, granny a black parent --> no loop
-				if (uncle == null) {
-					colorChange += granny.setColor(RBNode.Color.RED);
-					colorChange += parent.setColor(RBNode.Color.BLACK);
-					rotateRight(granny);
-				} else {
-					// cases 1,2,3 - exactly by the school pseudo cod
-					int[] temp = insertLeftCases(node);
-					colorChange += temp[0];
-					if (temp[1] == 1) {
-						node = granny;
-					}
+				// cases 1,2,3 by the school pseudo cod
+				int[] leftResult = insertLeftCases(node);
+				colorChanges += leftResult[0];
+				// if case one
+				if (leftResult[1] == 1) {
+					node = granny;
 				}
 			} else {
 				// parent is a right child
-				RBNode uncle = granny.leftChild;
-				// no uncle --> parent becomes a red sibling, granny a black parent --> no loop
-				if (uncle == null) {
-					colorChange += granny.setColor(RBNode.Color.RED);
-					colorChange += parent.setColor(RBNode.Color.BLACK);
-					rotateLeft(granny);
-				} else {
-					// cases 1,2,3 - exactly by the school pseudo cod
-					int[] temp = insertRightCases(node);
-					colorChange += temp[0];
-					if (temp[1] == 1) {
-						node = granny;
-					}
+				// cases 1,2,3 by the school pseudo cod
+				int[] rightResult = insertRightCases(node);
+				colorChanges += rightResult[0];
+				// if case 1
+				if (rightResult[1] == 1) {
+					node = granny;
 				}
 			}
 		}
-		return colorChange;
+		return colorChanges;
 	}
 	
 	// the one that's in the slides
@@ -560,64 +556,66 @@ public class RBTree {
 		RBNode parent = node.parent;
 		RBNode granny = parent.parent;
 		RBNode uncle = granny.rightChild;
-		int colorChange = 0;
+		int colorChanges = 0;
 		int isCase1 = 0;
 		
 		// case 1: red uncle
-		if (uncle.isRed()) {
-			colorChange += parent.setColor(RBNode.Color.BLACK);
-			colorChange += uncle.setColor(RBNode.Color.BLACK);
-			if (granny.parent != null) {
-				colorChange += granny.setColor(RBNode.Color.RED);
-				isCase1 = 1;
+		if (uncle != null) {
+			if (uncle.isRed()) {
+				colorChanges += parent.setColor(RBNode.Color.BLACK);
+				colorChanges += uncle.setColor(RBNode.Color.BLACK);
+				if (this.root != granny) {
+					colorChanges += granny.setColor(RBNode.Color.RED);
+					isCase1 = 1;
+				}
+				return new int[] {colorChanges, isCase1};
 			}
-		} else {
-			// case 2: black uncle & node is a right child
-			if (node == parent.rightChild) {
-				node = parent;
-				parent = node.parent;
-				granny = parent.parent;
-				rotateLeft(node);
-			}
-			// case 3: black uncle & node is a left child
-			colorChange += parent.setColor(RBNode.Color.BLACK);
-			colorChange += granny.setColor(RBNode.Color.RED);
-			rotateRight(granny);
 		}
-		int[] result = {colorChange, isCase1};
-		return result;
+		// case 2: black/null uncle & node is a right child
+		if (node == parent.rightChild) {
+			node = parent;
+			rotateLeft(node);
+			parent = node.parent;
+			granny = parent.parent;
+		}
+		// case 3: black/null uncle & node is a left child
+		colorChanges += parent.setColor(RBNode.Color.BLACK);
+		colorChanges += granny.setColor(RBNode.Color.RED);
+		rotateRight(granny);
+		return new int[] {colorChanges, isCase1};
 	}
 	
 	private int[] insertRightCases(RBNode node) {
 		RBNode parent = node.parent;
 		RBNode granny = parent.parent;
-		RBNode uncle = granny.rightChild;
-		int colorChange = 0;
+		RBNode uncle = granny.leftChild;
+		int colorChanges = 0;
 		int isCase1 = 0;
 		
 		// case 1: red uncle
-		if (uncle.isRed()) {
-			colorChange += parent.setColor(RBNode.Color.BLACK);
-			colorChange += uncle.setColor(RBNode.Color.BLACK);
-			if (granny.parent != null) {
-				colorChange += granny.setColor(RBNode.Color.RED);
-				isCase1 = 1;
+		if (uncle != null) {
+			if (uncle.isRed()) {
+				colorChanges += parent.setColor(RBNode.Color.BLACK);
+				colorChanges += uncle.setColor(RBNode.Color.BLACK);
+				if (this.root != granny) {
+					colorChanges += granny.setColor(RBNode.Color.RED);
+					isCase1 = 1;
+				}
+				return new int[] {colorChanges, isCase1};
 			}
-		} else {
-			// case 2: black uncle & node is a left child
-			if (node == parent.leftChild) {
-				node = parent;
-				parent = node.parent;
-				granny = parent.parent;
-				rotateRight(node);
-			}
-			// case 3: black uncle & node is a right child
-			colorChange += parent.setColor(RBNode.Color.BLACK);
-			colorChange += granny.setColor(RBNode.Color.RED);
-			rotateLeft(granny);
 		}
-		int[] result = {colorChange, isCase1};
-		return result;
+		// case 2: black/null uncle & node is a left child
+		if (node == parent.leftChild) {
+			node = parent;
+			rotateRight(node);
+			parent = node.parent;
+			granny = parent.parent;
+		}
+		// case 3: black/null uncle & node is a right child
+		colorChanges += parent.setColor(RBNode.Color.BLACK);
+		colorChanges += granny.setColor(RBNode.Color.RED);
+		rotateLeft(granny);
+		return new int[] {colorChanges, isCase1};
 	}
 	
 	private int deleteNode(RBNode nodeToDelete) {
@@ -830,6 +828,8 @@ public class RBTree {
 				{
 					increasedArray[ix] = this.storageArray[ix];
 				}
+				
+				this.storageArray = increasedArray;
 			}
 			
 			this.storageArray[this.numberOfItemsStored] = item;
