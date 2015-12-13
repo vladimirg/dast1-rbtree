@@ -119,8 +119,8 @@ public class Tester {
 		assert tree.empty() == (array.length == 0);
 		assert Arrays.equals(tree.keysToArray(), sortedArray);
 		assert Arrays.equals(tree.valuesToArray(), valuesSortedArray);
-		assert tree.min().equals(valuesSortedArray[0]);
-		assert tree.max().equals(valuesSortedArray[valuesSortedArray.length-1]);
+		assert tree.min() == null || tree.min().equals(valuesSortedArray[0]);
+		assert tree.max() == null || tree.max().equals(valuesSortedArray[valuesSortedArray.length-1]);
 		for (int i : array)
 		{
 			assert tree.search(i).equals(Integer.toString(i));

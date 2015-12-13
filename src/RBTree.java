@@ -450,36 +450,24 @@ public class RBTree {
 		}
 	}
 	
-	private RBNode findSuccessor(RBNode node)
-	{
-		// First, find the first parent such that our node argument will be in its left subtree.
-		RBNode parent = node.getParent();
-		while (parent != null && parent.getKey() < node.getKey())
-		{
-			parent = parent.getParent();
+	private RBNode findSuccessor(RBNode node) {
+		// If we have a right child, the successor is the minimum of the right subtree:
+		if (node.getRight() != null) {
+			RBNode rightSubtreeMin = node.getRight();
+			while (rightSubtreeMin.getLeft() != null) {
+				rightSubtreeMin = rightSubtreeMin.getLeft();
+			}
+			
+			return rightSubtreeMin;
 		}
 		
-		// If we ended up with a null parent, it means we have no successor.
-		if (parent == null)
-		{
-			return null;
+		// Otherwise, it's the first ancestor that's bigger than us:
+		RBNode ancestor = node.parent;
+		while (ancestor != null && ancestor.getKey() < node.getKey()) {
+			ancestor = ancestor.getParent();
 		}
 		
-		// If the parent has no right subtree, then the parent is the successor.
-		if (parent.getRight() == null)
-		{
-			return parent;
-		}
-		
-		// If the parent has a right subtree, the node's successor will be the
-		// minimum node of that subtree.
-		RBNode min = parent.getRight();
-		while (min.getLeft() != null)
-		{
-			min = min.getLeft();
-		}
-		
-		return min;
+		return ancestor;
 	}
 	
 	private RBNode findPredecessor(RBNode node) {
@@ -493,24 +481,13 @@ public class RBTree {
 			return pred;
 		}
 		
-		// Find an ancestor which is smaller than the node.
+		// Otherwise, the predecessor is the first ancestor which is smaller than the node:
 		RBNode parent = node.getParent();
 		while (parent != null && parent.getKey() > node.getKey()) {
 			parent = parent.getParent();
 		}
 		
-		// If it has no left subtree, then it is the predecessor:
-		if (parent.getLeft() == null) {
-			return parent;
-		}
-		
-		// Else, the predecessor is the max of the subtree:
-		RBNode pred = parent.getLeft();
-		while (pred.getRight() != null) {
-			pred = pred.getRight();
-		}
-		
-		return pred;
+		return parent;
 	}
 	
 	private int insertFixup(RBNode node) {
@@ -646,7 +623,7 @@ public class RBTree {
 					 * This is a problem, since we don't use instance placeholders for the
 					 * terminal leaves. Our solution is to delay deleting this node
 					 * until the tree fixing is complete, and only then remove it.
-					 * This is OK, because fixing the tree shouldn't change neither the
+					 * This is OK, because fixing the tree should change neither the
 					 * children of a double-black node nor its parent, including the
 					 * node to delete. */
 					colorChanges += this.fixTreeAfterDeletion(nodeToDelete);
@@ -666,7 +643,15 @@ public class RBTree {
 			}
 			
 			RBNode parent = nodeToDelete.getParent();
-			parent.replaceChild(nodeToDelete, child);
+			
+			// We're trying to delete the root, replace it with its child.
+			if (parent == null) {
+				child.parent = null;
+				this.root = child;
+			}
+			else {
+				parent.replaceChild(nodeToDelete, child);
+			}
 			
 			// If the deleted node was black, we may be in trouble for violating the black height:
 			if (nodeToDelete.isBlack()) {
