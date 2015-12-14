@@ -9,6 +9,7 @@
  */
 
 public class RBTree {
+	
 	private RBNode root;
 	private RBNode min;
 	private RBNode max;
@@ -18,6 +19,7 @@ public class RBTree {
 	 * public class RBNode
 	 */
 	public static class RBNode {
+		
 		public enum Color {
 			BLACK, RED;
 		}
@@ -513,6 +515,8 @@ public class RBTree {
 				// if case one
 				if (leftResult[1] == 1) {
 					node = granny;
+				} else {
+					break;
 				}
 			} else {
 				// parent is a right child
@@ -522,6 +526,8 @@ public class RBTree {
 				// if case 1
 				if (rightResult[1] == 1) {
 					node = granny;
+				} else {
+					break;
 				}
 			}
 		}
