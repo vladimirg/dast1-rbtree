@@ -748,8 +748,8 @@ public class RBTree {
 					colorChanges += 2;
 					
 					// Update our relations:
+					distalNephew = sibling; // Note that after this operation, the distal nephew is red.
 					sibling = proximalNephew;
-					distalNephew = sibling; // Note that after this operation, the distal nephew is red. 
 					proximalNephew = newProximalNephew;
 				}
 				
