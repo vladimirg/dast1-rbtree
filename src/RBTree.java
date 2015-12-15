@@ -44,27 +44,27 @@ public class RBTree {
 			this.value = value;
 		}
 		
-		// returns true iff RBNode is red
+		// returns true iff RBNode is red - O(1)
 		public boolean isRed() {
 			return this.color == Color.RED;
 		}
 		
-		// returns true iff RBNode is black
+		// returns true iff RBNode is black - O(1)
 		public boolean isBlack() {
 			return this.color == Color.BLACK;
 		}
 		
-		// makes RBNode red
+		// makes RBNode red - O(1)
 		public void setToRed() {
 			this.setColor(Color.RED);
 		}
 		
-		// makes RBNode black
+		// makes RBNode black - O(1)
 		public void setToBlack() {
 			this.setColor(Color.BLACK);
 		}
 		
-		// sets the given color and returns 1 if color changed, 0 otherwise
+		// sets the given color and returns 1 if color changed, 0 otherwise - O(1)
 		public int setColor(Color newColor) {
 			if (this.color == newColor) {
 				return 0;
@@ -75,17 +75,17 @@ public class RBTree {
 			}
 		}
 		
-		// getter for RBNode color (returns RBNode color)
+		// getter for RBNode color (returns RBNode color) - O(1)
 		public Color getColor() {
 			return this.color;
 		}
 
-		// getter for RBNode left child
+		// getter for RBNode left child - O(1)
 		public RBNode getLeft() {
 			return this.leftChild;
 		}
 		
-		// setter for left child - sets left child and its parent
+		// setter for left child - sets left child and its parent - O(1)
 		public void setLeft(RBNode leftChild) {
 			this.leftChild = leftChild;
 			
@@ -94,12 +94,12 @@ public class RBTree {
 			}
 		}
 
-		// getter for RBNode right child
+		// getter for RBNode right child - O(1)
 		public RBNode getRight() {
 			return this.rightChild;
 		}
 		
-		// setter for RBNode right child
+		// setter for RBNode right child - O(1)
 		public void setRight(RBNode rightChild) {
 			this.rightChild = rightChild;
 			
@@ -108,37 +108,37 @@ public class RBTree {
 			}
 		}
 
-		// getter for RBNode key
+		// getter for RBNode key - O(1)
 		public int getKey() {
 			return this.key;
 		}
 		
-		// setter for RBNode key
+		// setter for RBNode key - O(1)
 		public void setKey(int key) {
 			this.key = key;
 		}
 		
-		// getter for RBNode value
+		// getter for RBNode value - O(1)
 		public String getValue() {
 			return this.value;
 		}
 		
-		// setter for RBNode value
+		// setter for RBNode value - O(1)
 		public void setValue(String value) {
 			this.value = value;
 		}
 		
-		// getter for RBNode parent
+		// getter for RBNode parent - O(1)
 		public RBNode getParent() {
 			return this.parent;
 		}
 		
-		// setter for RBNode parent
+		// setter for RBNode parent - O(1)
 		public void setParent(RBNode node) {
 			this.parent = node;
 		}
 		
-		// replace old child by new child, including parent relations
+		// replace old child by new child, including parent relations - O(1)
 		public void replaceChild(RBNode oldChild, RBNode newChild) {
 			if (this.leftChild == oldChild) {
 				this.leftChild.setParent(null);
@@ -152,7 +152,7 @@ public class RBTree {
 			}
 		}
 		
-		// returns RBNode sibling
+		// returns RBNode sibling - O(1)
 		public RBNode getSibling() {
 			if (this.parent == null) {
 				return null;
@@ -172,6 +172,7 @@ public class RBTree {
 	 *
 	 * returns the root of the red black tree
 	 *
+	 * in O(1)
 	 */
 	public RBNode getRoot() {
 		return root;
@@ -182,6 +183,7 @@ public class RBTree {
 	 *
 	 * returns true if and only if the tree is empty
 	 *
+	 * in O(1)
 	 */
 	public boolean empty() {
 		if (getRoot() == null) {
@@ -195,6 +197,8 @@ public class RBTree {
 	 *
 	 * returns the value of an item with key k if it exists in the tree
 	 * otherwise, returns null
+	 * 
+	 * in O(log(n)), because of the recursive inner method searchNode(k)
 	 */
 	public String search(int k) {
 		if (searchNode(k) != null) {
@@ -210,6 +214,8 @@ public class RBTree {
 	 * must remain valid (keep its invariants). returns the number of color
 	 * switches, or 0 if no color switches were necessary. returns -1 if an item
 	 * with key k already exists in the tree.
+	 * 
+	 * in O(log(n)), because of the inner method insertFixup(node)
 	 */
 	public int insert(int k, String v) {
 		RBNode myNode = new RBNode(k, v);
@@ -249,7 +255,7 @@ public class RBTree {
 	 * switches, or 0 if no color switches were needed. returns -1 if an item
 	 * with key k was not found in the tree.
 	 * 
-	 * Worst case - O(log n).
+	 * worst case - O(log n), because of the inner methods deleteNode(node), findSuccessor(node)
 	 */
 	public int delete(int k) {
 		RBNode nodeToDelete = this.searchNode(k);
@@ -285,6 +291,8 @@ public class RBTree {
 	 *
 	 * Returns the value of the item with the smallest key in the tree, or null
 	 * if the tree is empty
+	 * 
+	 * in O(1)
 	 */
 	public String min() {
 		if (this.min != null) {
@@ -298,6 +306,8 @@ public class RBTree {
 	 *
 	 * Returns the value of the item with the largest key in the tree, or null
 	 * if the tree is empty
+	 * 
+	 * in O(1)
 	 */
 	public String max() {
 		if (this.max != null) {
@@ -312,8 +322,8 @@ public class RBTree {
 	 * Returns a sorted array which contains all keys in the tree, or an empty
 	 * array if the tree is empty.
 	 * 
-	 * Worst case - O(n) (inorder traversal is O(n), collecting all keys into
-	 * a list is O(n), copying the list into a result array is O(n)).
+	 * worst case - O(n) (inorder traversal is O(n), collecting all keys into
+	 * a list is O(n), copying the list into a result array is O(n))
 	 */
 	public int[] keysToArray() {
 		List keys = new List();
@@ -335,8 +345,8 @@ public class RBTree {
 	 * Returns an array which contains all values in the tree, sorted by their
 	 * respective keys, or an empty array if the tree is empty.
 	 * 
-	 * Worst case - O(n) (inorder traversal is O(n), collecting all values into
-	 * a list is O(n), copying the list into a result array is O(n)).
+	 * worst case - O(n) (inorder traversal is O(n), collecting all values into
+	 * a list is O(n), copying the list into a result array is O(n))
 	 */
 	public String[] valuesToArray() {
 		List values = new List();
@@ -372,14 +382,25 @@ public class RBTree {
 	 * Private methods
 	 */
 	
-	// returns RBNode with matching key if exists, else returns null
-	// starts searching on root
+	/**
+	 * returns RBNode with matching key if exists, else returns null
+	 * 
+	 * starts searching on root
+	 *
+	 * O(log(n)) because of the inner method searchNode(key, node)
+	 */
 	private RBNode searchNode(int key) {
 		return searchNode(key, this.root);
 	}
 	
-	// returns RBNode with matching key if exists, else returns null
-	// starts searching on a given node
+	/**
+	 * returns RBNode with matching key if exists, else returns null
+	 * 
+	 * starts searching on a given node
+	 * 
+	 * in O(log(n)), because it visits nodes on one branch only,
+	 * the tree height is of course O(log(n))
+	 */
 	private RBNode searchNode(int key, RBNode node){
 		if (node != null) {
 			if (key == node.key) {
@@ -398,8 +419,13 @@ public class RBTree {
 		return null;
 	}
 	
-	// returns node for insertion of key; if key already exists returns null
-	// starts searching on root
+	/** 
+	 * returns node for insertion of key; if key already exists returns null
+	 * 
+	 * starts searching on root
+	 * 
+	 * O(log(n)) because of the inner method searchLeaf(key, node)
+	 */
 	private RBNode searchLeaf(int key) {
 		if (!this.empty()) {
 			return searchLeaf(key, this.root);
@@ -407,8 +433,13 @@ public class RBTree {
 		return null;
 	}
 	
-	// returns node for insertion of key; if key already exists returns null
-	// starts searching on a given node
+	/** 
+	 * returns node for insertion of key; if key already exists returns null
+	 * 
+	 * starts searching on a given node
+	 * 
+	 * exactly the same path as searchNode - O(log(n))
+	 */ 
 	private RBNode searchLeaf(int key, RBNode node) {
 		RBNode myNode = node;
 		
@@ -427,7 +458,7 @@ public class RBTree {
 		return myNode;
 	}
 	
-	// replaces x's left child by y
+	// replaces x's left child by y - O(1)
 	private void toLeftChild(RBNode x, RBNode y) {
 		x.leftChild = y;
 		if (y != null) {
@@ -435,7 +466,7 @@ public class RBTree {
 		}
 	}
 	
-	// replaces x's right child by y
+	// replaces x's right child by y - O(1)
 	private void toRightChild(RBNode x, RBNode y) {
 		x.rightChild = y;
 		if (y != null) {
@@ -443,7 +474,7 @@ public class RBTree {
 		}
 	}
 	
-	// sets y as x's parent's child instead of x
+	// sets y as x's parent's child instead of x - O(1)
 	private void transplate(RBNode x, RBNode y) {
 		RBNode parent = x.parent;
 		
@@ -459,7 +490,7 @@ public class RBTree {
 	}
 	
 	/**
-	 * rotate a given node and its right child to the left 
+	 * rotate a given node and its right child to the left - O(1)
 	 */
 	private void rotateLeft(RBNode x) {
 		RBNode y = x.rightChild;
@@ -474,7 +505,7 @@ public class RBTree {
 	}
 	
 	/**
-	 * rotate a given node and its left child to the right
+	 * rotate a given node and its left child to the right - O(1)
 	 */
 	private void rotateRight(RBNode x) {
 		RBNode y = x.leftChild;
@@ -488,7 +519,7 @@ public class RBTree {
 		}
 	}
 	
-	// returns node's successor
+	// returns node's successor - worst case O(log(n)), the tree height
 	private RBNode findSuccessor(RBNode node) {
 		// If we have a right child, the successor is the minimum of the right subtree:
 		if (node.getRight() != null) {
@@ -500,7 +531,7 @@ public class RBTree {
 			return rightSubtreeMin;
 		}
 		
-		// Otherwise, it's the first ancestor that's bigger than us:
+		// otherwise, it's the first ancestor that's bigger than us:
 		RBNode ancestor = node.parent;
 		while (ancestor != null && ancestor.getKey() < node.getKey()) {
 			ancestor = ancestor.getParent();
@@ -509,7 +540,7 @@ public class RBTree {
 		return ancestor;
 	}
 	
-	// returns node's predecessor
+	// returns node's predecessor - worst case O(log(n)), the tree height
 	private RBNode findPredecessor(RBNode node) {
 		// If the node has a left subtree, its predecessor is its max:
 		if (node.getLeft() != null) {
@@ -530,7 +561,13 @@ public class RBTree {
 		return parent;
 	}
 	
-	// fixes tree after insertion of node; returns number of color changes
+	/** 
+	 * fixes tree after insertion of node
+	 * 
+	 * returns number of color changes
+	 * 
+	 * worst case in O(log(n)) - the max munber of loops is the tree height
+	 */
 	private int insertFixup(RBNode node) {
 		
 		// upgrades size
@@ -578,8 +615,13 @@ public class RBTree {
 		return colorChanges;
 	}
 	
-	// the one that's in the class slides - cases when parent is a left child
-	// returns two ints - number of color changes & if it's case 1
+	/** 
+	 * the one that's in the class slides - cases when parent is a left child
+	 * 
+	 * returns two ints - number of color changes & if it's case 1
+	 *
+	 * O(1) - no loops/recursion
+	 */
 	private int[] insertLeftCases(RBNode node) {
 		RBNode parent = node.parent;
 		RBNode granny = parent.parent;
@@ -613,8 +655,13 @@ public class RBTree {
 		return new int[] {colorChanges, isCase1};
 	}
 	
-	// mirror case of the previous method
-	// returns two ints - number of color changes & if it's case 1
+	/**
+	 * mirror case of the previous method
+	 * 
+	 * returns two ints - number of color changes & if it's case 1
+	 * 
+	 * O(1) - no loops/recursion
+	 */
 	private int[] insertRightCases(RBNode node) {
 		RBNode parent = node.parent;
 		RBNode granny = parent.parent;
@@ -648,43 +695,49 @@ public class RBTree {
 		return new int[] {colorChanges, isCase1};
 	}
 	
-	/*
-	 * Perform a physical deletion of a given node, update min and max poiners,
-	 * and do the fixup of "double blackness" (if it arises).
-	 * Returns the number of color changes that occured during the operation.
-	 * The node to delete must have at most one child.
+	/**
+	 * perform a physical deletion of a given node, update min and max poiners,
+	 * and do the fixup of "double blackness" (if it arises)
+	 * 
+	 * returns the number of color changes that occured during the operation
+	 * 
+	 * the node to delete must have at most one child
+	 * 
+	 * O(log(n)) because of the inner method fixTreeAfterDeletion(child)
 	 */
 	private int deleteNode(RBNode nodeToDelete) {
-		// We're going to delete this node for sure, so update size: 
+		// we're going to delete this node for sure, so update size: 
 		this.size -= 1;
 		
-		// If we're deleting the min or max nodes, we should update their pointers:
+		// if we're deleting the min or max nodes, we should update their pointers:
 		if (nodeToDelete == this.min) {
 			this.min = this.findSuccessor(nodeToDelete);
 		}
-		if (nodeToDelete == this.max) { // Not using "else" because in a one-node tree, the root is both the min and the max.
+		// not using "else" because in a one-node tree, the root is both the min and the max
+		if (nodeToDelete == this.max) { 
 			this.max = this.findPredecessor(nodeToDelete);
 		}
 		
 		int colorChanges = 0;
 		
 		if (nodeToDelete.getLeft() == null && nodeToDelete.getRight() == null) {
-			// nodeToDelete has no children, delete it immediately.
+			// nodeToDelete has no children, delete it immediately
 			RBNode parent = nodeToDelete.getParent();
 			
-			// Is this the last node in the tree?
+			// is this the last node in the tree?
 			if (parent == null) {
 				this.root = null;
 			}
 			else {
 				if (nodeToDelete.isBlack()) {
-					/* The node to delete is both black and has no real children.
-					 * This is a problem, since we don't use instance placeholders for the
+					/* the node to delete is both black and has no real children.
+					 * this is a problem, since we don't use instance placeholders for the
 					 * terminal leaves. Our solution is to delay deleting this node
 					 * until the tree fixing is complete, and only then remove it.
-					 * This is OK, because fixing the tree should change neither the
+					 * this is OK, because fixing the tree should change neither the
 					 * children of a double-black node nor its parent, including the
-					 * node to delete. */
+					 * node to delete
+					 * */
 					colorChanges += this.fixTreeAfterDeletion(nodeToDelete);
 				}
 				
@@ -712,15 +765,16 @@ public class RBTree {
 				parent.replaceChild(nodeToDelete, child);
 			}
 			
-			// If the deleted node was black, we may be in trouble for violating the black height:
+			// if the deleted node was black
+			// we may be in trouble for violating the black height:
 			if (nodeToDelete.isBlack()) {
 				if (child.isRed()) {
-					// The new child is red, we're cool.
+					// The new child is red, we're cool
 					child.setToBlack();
 					colorChanges++;
 				}
 				else {
-					// Mark it and fix the tree.
+					// mark it and fix the tree
 					colorChanges += this.fixTreeAfterDeletion(child);
 				}
 			}
@@ -729,18 +783,23 @@ public class RBTree {
 		return colorChanges;
 	}
 	
-	/*
-	 * Recursively fix a tree that has a node afflicted with the dreaded "double blackness".
-	 * The input node is the node that is marked as double black (we do not store this information anywhere else).
-	 * Returns the number of color changes that occurred during the fixup.
+	/**
+	 * recursively fix a tree that has a node afflicted with the dreaded "double blackness"
+	 * 
+	 * the input node is the node that is marked as double black
+	 * (we do not store this information anywhere else)
+	 * 
+	 * returns the number of color changes that occurred during the fixup
+	 * 
+	 * O(log(n)) - the maximal depth of recursion is the tree height
 	 */
 	private int fixTreeAfterDeletion(RBNode doubleBlackNode) {
-		// If we reached the root, do nothing:
+		// if we reached the root, do nothing:
 		if (doubleBlackNode == this.root) {
 			return 0;
 		}
 		
-		// If the double black node is red, balance it by changing it to black:
+		// if the double black node is red, balance it by changing it to black:
 		if (doubleBlackNode.isRed()) {
 			doubleBlackNode.setToBlack();
 			return 1;
@@ -750,7 +809,7 @@ public class RBTree {
 		RBNode sibling = doubleBlackNode.getSibling();
 		
 		if (sibling.isRed()) {
-			// Case 1: the sibling is red.
+			// case 1: the sibling is red
 			if (sibling == parent.getRight()) {
 				this.rotateLeft(parent);
 			}
@@ -763,10 +822,10 @@ public class RBTree {
 			return 2 + this.fixTreeAfterDeletion(doubleBlackNode);
 		}
 		else {
-			// The sibling is black.
+			// the sibling is black
 			
-			RBNode proximalNephew; // The nephew closer to the double black node.
-			RBNode distalNephew; // The nephew farther from the double black node.
+			RBNode proximalNephew; // the nephew closer to the double black node
+			RBNode distalNephew; // the nephew farther from the double black node
 			
 			if (doubleBlackNode == parent.getLeft()) {
 				proximalNephew = sibling.getLeft();
@@ -829,10 +888,9 @@ public class RBTree {
 		}
 	}
 	
-	// collect the node keys using inorder into a given list.
+	// collect the node keys using inorder into a given list - O(n)
 	private void collectKeysInorder(RBNode node, List keysList) {
-		if (node == null)
-		{
+		if (node == null) {
 			return;
 		}
 		
@@ -841,10 +899,9 @@ public class RBTree {
 		this.collectKeysInorder(node.getRight(), keysList);
 	}
 	
-	// collect the node values using inorder into a given list.
+	// collect the node values using inorder into a given list - O(n)
 	private void collectValuesInorder(RBNode node, List keysList) {
-		if (node == null)
-		{
+		if (node == null) {
 			return;
 		}
 		
@@ -857,7 +914,7 @@ public class RBTree {
 	 * Helper classes
 	 */
 	
-	// partial implementation of a list using dynamic (doubling) arrays.
+	// partial implementation of a list using dynamic (doubling) arrays
 	private static class List {
 		// The initial array length:
 		private static final int INITIAL_LENGTH = 16;
@@ -872,16 +929,14 @@ public class RBTree {
 			this.numberOfItemsStored = 0;
 		}
 		
-		// Adds an item to the end of the list.
-		// Worst case - O(n), amortized - O(1).
-		public void addItem(Object item)
-		{
-			if (this.numberOfItemsStored == this.storageArray.length)
-			{
+		// adds an item to the end of the list
+		// worst case - O(n), amortized - O(1)
+		public void addItem(Object item) {
+			
+			if (this.numberOfItemsStored == this.storageArray.length) {
 				Object[] increasedArray = new Object[this.storageArray.length * List.INCREASE_FACTOR];
 				
-				for (int ix = 0; ix < this.numberOfItemsStored; ix++)
-				{
+				for (int ix = 0; ix < this.numberOfItemsStored; ix++) {
 					increasedArray[ix] = this.storageArray[ix];
 				}
 				
@@ -892,15 +947,13 @@ public class RBTree {
 			this.numberOfItemsStored++;
 		}
 		
-		// Returns the size of the list.
-		public int length()
-		{
+		// returns the size of the list - O(1)
+		public int length() {
 			return this.numberOfItemsStored;
 		}
 		
-		// Returns an item at a given index in the list.
-		public Object getItem(int index)
-		{
+		// returns an item at a given index in the list - O(1)
+		public Object getItem(int index) {
 			return this.storageArray[index];
 		}
 	}
