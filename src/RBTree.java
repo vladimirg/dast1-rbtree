@@ -221,6 +221,8 @@ public class RBTree {
 	 * must remain valid (keep its invariants). returns the number of color
 	 * switches, or 0 if no color switches were needed. returns -1 if an item
 	 * with key k was not found in the tree.
+	 * 
+	 * Worst case - O(log n).
 	 */
 	public int delete(int k) {
 		RBNode nodeToDelete = this.searchNode(k);
@@ -282,6 +284,9 @@ public class RBTree {
 	 *
 	 * Returns a sorted array which contains all keys in the tree, or an empty
 	 * array if the tree is empty.
+	 * 
+	 * Worst case - O(n) (inorder traversal is O(n), collecting all keys into
+	 * a list is O(n), copying the list into a result array is O(n)).
 	 */
 	public int[] keysToArray() {
 		List keys = new List();
@@ -302,6 +307,9 @@ public class RBTree {
 	 *
 	 * Returns an array which contains all values in the tree, sorted by their
 	 * respective keys, or an empty array if the tree is empty.
+	 * 
+	 * Worst case - O(n) (inorder traversal is O(n), collecting all values into
+	 * a list is O(n), copying the list into a result array is O(n)).
 	 */
 	public String[] valuesToArray() {
 		List values = new List();
@@ -601,6 +609,12 @@ public class RBTree {
 		return new int[] {colorChanges, isCase1};
 	}
 	
+	/*
+	 * Perform a physical deletion of a given node, update min and max poiners,
+	 * and do the fixup of "double blackness" (if it arises).
+	 * Returns the number of color changes that occured during the operation.
+	 * The node to delete must have at most one child.
+	 */
 	private int deleteNode(RBNode nodeToDelete) {
 		// We're going to delete this node for sure, so update size: 
 		this.size -= 1;
@@ -676,6 +690,11 @@ public class RBTree {
 		return colorChanges;
 	}
 	
+	/*
+	 * Recursively fix a tree that has a node afflicted with the dreaded "double blackness".
+	 * The input node is the node that is marked as double black (we do not store this information anywhere else).
+	 * Returns the number of color changes that occurred during the fixup.
+	 */
 	private int fixTreeAfterDeletion(RBNode doubleBlackNode) {
 		// If we reached the root, do nothing:
 		if (doubleBlackNode == this.root) {
@@ -771,6 +790,7 @@ public class RBTree {
 		}
 	}
 	
+	// Collect the node keys using inorder into a given list.
 	private void collectKeysInorder(RBNode node, List keysList) {
 		if (node == null)
 		{
@@ -782,6 +802,7 @@ public class RBTree {
 		this.collectKeysInorder(node.getRight(), keysList);
 	}
 	
+	// Collect the node values using inorder into a given list.
 	private void collectValuesInorder(RBNode node, List keysList) {
 		if (node == null)
 		{
@@ -797,8 +818,11 @@ public class RBTree {
 	 * Helper classes
 	 */
 	
+	// A partial implementation of a list using dynamic (doubling) arrays.
 	private static class List {
+		// The initial array length:
 		private static final int INITIAL_LENGTH = 16;
+		// The factor by which to increase the array once its full:
 		private static final int INCREASE_FACTOR = 2;
 		
 		private Object[] storageArray;
@@ -809,6 +833,8 @@ public class RBTree {
 			this.numberOfItemsStored = 0;
 		}
 		
+		// Adds an item to the end of the list.
+		// Worst case - O(n), amortized - O(1).
 		public void addItem(Object item)
 		{
 			if (this.numberOfItemsStored == this.storageArray.length)
@@ -827,11 +853,13 @@ public class RBTree {
 			this.numberOfItemsStored++;
 		}
 		
+		// Returns the size of the list.
 		public int length()
 		{
 			return this.numberOfItemsStored;
 		}
 		
+		// Returns an item at a given index in the list.
 		public Object getItem(int index)
 		{
 			return this.storageArray[index];
