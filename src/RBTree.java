@@ -31,33 +31,40 @@ public class RBTree {
 		private RBNode leftChild;
 		private RBNode rightChild;
 		
+		// empty constructor - creates a red node with no other properties
+		// parents and children are null by default
 		public RBNode() {
 			this.color = Color.RED;
 		}
 		
+		// full constructor - calls the empty one and adds key & value
 		public RBNode(int key, String value) {
 			this();
 			this.key = key;
 			this.value = value;
 		}
 		
+		// returns true iff RBNode is red
 		public boolean isRed() {
 			return this.color == Color.RED;
 		}
 		
+		// returns true iff RBNode is black
 		public boolean isBlack() {
 			return this.color == Color.BLACK;
 		}
 		
+		// makes RBNode red
 		public void setToRed() {
 			this.setColor(Color.RED);
 		}
 		
+		// makes RBNode black
 		public void setToBlack() {
 			this.setColor(Color.BLACK);
 		}
 		
-		// Return 1 if color changed, 0 otherwise.
+		// sets the given color and returns 1 if color changed, 0 otherwise
 		public int setColor(Color newColor) {
 			if (this.color == newColor) {
 				return 0;
@@ -68,14 +75,17 @@ public class RBTree {
 			}
 		}
 		
+		// getter for RBNode color (returns RBNode color)
 		public Color getColor() {
 			return this.color;
 		}
 
+		// getter for RBNode left child
 		public RBNode getLeft() {
 			return this.leftChild;
 		}
 		
+		// setter for left child - sets left child and its parent
 		public void setLeft(RBNode leftChild) {
 			this.leftChild = leftChild;
 			
@@ -84,10 +94,12 @@ public class RBTree {
 			}
 		}
 
+		// getter for RBNode right child
 		public RBNode getRight() {
 			return this.rightChild;
 		}
 		
+		// setter for RBNode right child
 		public void setRight(RBNode rightChild) {
 			this.rightChild = rightChild;
 			
@@ -96,30 +108,37 @@ public class RBTree {
 			}
 		}
 
+		// getter for RBNode key
 		public int getKey() {
 			return this.key;
 		}
 		
+		// setter for RBNode key
 		public void setKey(int key) {
 			this.key = key;
 		}
 		
+		// getter for RBNode value
 		public String getValue() {
 			return this.value;
 		}
 		
+		// setter for RBNode value
 		public void setValue(String value) {
 			this.value = value;
 		}
 		
+		// getter for RBNode parent
 		public RBNode getParent() {
 			return this.parent;
 		}
 		
+		// setter for RBNode parent
 		public void setParent(RBNode node) {
 			this.parent = node;
 		}
 		
+		// replace old child by new child, including parent relations
 		public void replaceChild(RBNode oldChild, RBNode newChild) {
 			if (this.leftChild == oldChild) {
 				this.leftChild.setParent(null);
@@ -133,6 +152,7 @@ public class RBTree {
 			}
 		}
 		
+		// returns RBNode sibling
 		public RBNode getSibling() {
 			if (this.parent == null) {
 				return null;
@@ -193,6 +213,8 @@ public class RBTree {
 	 */
 	public int insert(int k, String v) {
 		RBNode myNode = new RBNode(k, v);
+		
+		// edge case - inserts new RBNode to root when RBTree is empty
 		if (this.empty()) {
 			this.root = myNode;
 			this.min = myNode;
@@ -200,7 +222,11 @@ public class RBTree {
 			size++;
 			return myNode.setColor(RBNode.Color.BLACK);
 		}
+		
+		// finds the place for insertion, RBNode with suitable null child
 		RBNode myLeaf = searchLeaf(k);
+		
+		// inserts new RBNode
 		if (myLeaf != null) {
 			myNode.parent = myLeaf;
 			if (myNode.key < myLeaf.key) {
@@ -208,7 +234,8 @@ public class RBTree {
 			} else {
 				myLeaf.rightChild = myNode;
 			}
-			size++;
+
+			// fixes tree if necessary - colors, size, min/max, root
 			return insertFixup(myNode);
 		}
 		return -1;
@@ -345,10 +372,14 @@ public class RBTree {
 	 * Private methods
 	 */
 	
+	// returns RBNode with matching key if exists, else returns null
+	// starts searching on root
 	private RBNode searchNode(int key) {
 		return searchNode(key, this.root);
 	}
 	
+	// returns RBNode with matching key if exists, else returns null
+	// starts searching on a given node
 	private RBNode searchNode(int key, RBNode node){
 		if (node != null) {
 			if (key == node.key) {
@@ -367,6 +398,8 @@ public class RBTree {
 		return null;
 	}
 	
+	// returns node for insertion of key; if key already exists returns null
+	// starts searching on root
 	private RBNode searchLeaf(int key) {
 		if (!this.empty()) {
 			return searchLeaf(key, this.root);
@@ -374,6 +407,8 @@ public class RBTree {
 		return null;
 	}
 	
+	// returns node for insertion of key; if key already exists returns null
+	// starts searching on a given node
 	private RBNode searchLeaf(int key, RBNode node) {
 		RBNode myNode = node;
 		
@@ -392,6 +427,7 @@ public class RBTree {
 		return myNode;
 	}
 	
+	// replaces x's left child by y
 	private void toLeftChild(RBNode x, RBNode y) {
 		x.leftChild = y;
 		if (y != null) {
@@ -399,6 +435,7 @@ public class RBTree {
 		}
 	}
 	
+	// replaces x's right child by y
 	private void toRightChild(RBNode x, RBNode y) {
 		x.rightChild = y;
 		if (y != null) {
@@ -406,6 +443,7 @@ public class RBTree {
 		}
 	}
 	
+	// sets y as x's parent's child instead of x
 	private void transplate(RBNode x, RBNode y) {
 		RBNode parent = x.parent;
 		
@@ -420,18 +458,8 @@ public class RBTree {
 		}
 	}
 	
-	private void replace(RBNode x, RBNode y) {
-		transplate(x, y);
-		toLeftChild(y, x.leftChild);
-		toRightChild(y, x.rightChild);
-		
-		if (x == this.root) {
-			this.root = y;
-		}
-	}
-	
 	/**
-	 * Rotate a given node and its right child to the left. 
+	 * rotate a given node and its right child to the left 
 	 */
 	private void rotateLeft(RBNode x) {
 		RBNode y = x.rightChild;
@@ -446,7 +474,7 @@ public class RBTree {
 	}
 	
 	/**
-	 * Rotate a given node and its left child to the right. 
+	 * rotate a given node and its left child to the right
 	 */
 	private void rotateRight(RBNode x) {
 		RBNode y = x.leftChild;
@@ -460,6 +488,7 @@ public class RBTree {
 		}
 	}
 	
+	// returns node's successor
 	private RBNode findSuccessor(RBNode node) {
 		// If we have a right child, the successor is the minimum of the right subtree:
 		if (node.getRight() != null) {
@@ -480,6 +509,7 @@ public class RBTree {
 		return ancestor;
 	}
 	
+	// returns node's predecessor
 	private RBNode findPredecessor(RBNode node) {
 		// If the node has a left subtree, its predecessor is its max:
 		if (node.getLeft() != null) {
@@ -500,8 +530,13 @@ public class RBTree {
 		return parent;
 	}
 	
+	// fixes tree after insertion of node; returns number of color changes
 	private int insertFixup(RBNode node) {
 		
+		// upgrades size
+		size++;
+		
+		// upgrades min/max
 		if (node.key < this.min.key) {
 			this.min = node;
 		}
@@ -509,6 +544,7 @@ public class RBTree {
 			this.max = node;
 		}
 		
+		// upgrades colors and rotates if necessary
 		int colorChanges = 0;
 		while (node.parent.isRed()) {
 			RBNode parent = node.parent;
@@ -542,7 +578,8 @@ public class RBTree {
 		return colorChanges;
 	}
 	
-	// the one that's in the slides
+	// the one that's in the class slides - cases when parent is a left child
+	// returns two ints - number of color changes & if it's case 1
 	private int[] insertLeftCases(RBNode node) {
 		RBNode parent = node.parent;
 		RBNode granny = parent.parent;
@@ -576,6 +613,8 @@ public class RBTree {
 		return new int[] {colorChanges, isCase1};
 	}
 	
+	// mirror case of the previous method
+	// returns two ints - number of color changes & if it's case 1
 	private int[] insertRightCases(RBNode node) {
 		RBNode parent = node.parent;
 		RBNode granny = parent.parent;
@@ -790,7 +829,7 @@ public class RBTree {
 		}
 	}
 	
-	// Collect the node keys using inorder into a given list.
+	// collect the node keys using inorder into a given list.
 	private void collectKeysInorder(RBNode node, List keysList) {
 		if (node == null)
 		{
@@ -802,7 +841,7 @@ public class RBTree {
 		this.collectKeysInorder(node.getRight(), keysList);
 	}
 	
-	// Collect the node values using inorder into a given list.
+	// collect the node values using inorder into a given list.
 	private void collectValuesInorder(RBNode node, List keysList) {
 		if (node == null)
 		{
@@ -818,7 +857,7 @@ public class RBTree {
 	 * Helper classes
 	 */
 	
-	// A partial implementation of a list using dynamic (doubling) arrays.
+	// partial implementation of a list using dynamic (doubling) arrays.
 	private static class List {
 		// The initial array length:
 		private static final int INITIAL_LENGTH = 16;
